@@ -1,0 +1,17 @@
+kafka:
+  bootstrap-servers: localhost:9092
+  consumer:
+    group-id: singleGroupId
+    topics:
+      - first
+  producer:
+    producer-id: myProducerId
+    acks: all
+    max-in-flight-requests: 1
+    request-timeout-ms: 100
+    retries: 3
+    topics:
+      - first
+logging:
+  level:
+    com.ninos.business.api: DEBUG
