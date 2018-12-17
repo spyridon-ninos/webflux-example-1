@@ -12,6 +12,7 @@ kafka:
     retries: 3
     topics:
       - first
-logging:
-  level:
-    com.ninos.business.api: DEBUG
+api:
+  version: v1
+endpoints-enabled:
+  persons: true
