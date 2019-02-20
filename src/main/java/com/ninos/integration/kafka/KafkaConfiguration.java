@@ -25,24 +25,39 @@ public class KafkaConfiguration {
    * configures a producer factory, based on the configuration provided by the KafkaConfig class
    */
   @Bean
-  public ProducerFactory<String, Person> producerFactory() {
-    KafkaConfig kafkaConfig = configuration();
+  public ProducerFactory<String, Person> producerFactory(KafkaConfig kafkaConfig, PersonSerializer personSerializer) {
     ProducerConfiguration producerConfiguration = kafkaConfig.getProducer();
     Map<String, Object> configProps = new HashMap<>();
     configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-    configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, PersonSerializer.class);
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
-    configProps.put(ProducerConfig.ACKS_CONFIG, producerConfiguration.getAcks());
     configProps.put(ProducerConfig.CLIENT_ID_CONFIG, producerConfiguration.getProducerId());
-    configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, producerConfiguration.getMaxInFlightRequests());
     configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, producerConfiguration.getRequestTimeoutMs());
-    configProps.put(ProducerConfig.RETRIES_CONFIG, producerConfiguration.getRetries());
-    return new DefaultKafkaProducerFactory<>(configProps);
+
+    /*
+     * an idempotent producer sets automatically the acks to all, retries to INT.MAX
+     * and in flight requests to 1
+     */
+    if (producerConfiguration.getIdempotent()) {
+      configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+    } else {
+      configProps.put(ProducerConfig.ACKS_CONFIG, producerConfiguration.getAcks());
+      configProps.put(ProducerConfig.RETRIES_CONFIG, producerConfiguration.getRetries());
+      configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, producerConfiguration.getMaxInFlightRequests());
+    }
+
+    /*
+     * set the personSerializer as a serializer
+     * we could have used the class declaration but we want to demonstrate the use of a spring singleton
+     */
+    DefaultKafkaProducerFactory<String, Person> producerFactory = new DefaultKafkaProducerFactory<>(configProps);
+    producerFactory.setValueSerializer(personSerializer);
+
+    return producerFactory;
   }
 
   @Bean
-  public KafkaTemplate<String, Person> kafkaTemplate() {
-    return new KafkaTemplate<>(producerFactory());
+  public KafkaTemplate<String, Person> kafkaTemplate(ProducerFactory<String, Person> producerFactory) {
+    return new KafkaTemplate<>(producerFactory);
   }
 
   /**
@@ -116,6 +131,7 @@ public class KafkaConfiguration {
    */
   public static class ProducerConfiguration {
     private String producerId;
+    private Boolean idempotent;
     private String acks;
     private String maxInFlightRequests;
     private String requestTimeoutMs;
@@ -129,6 +145,14 @@ public class KafkaConfiguration {
 
     public void setProducerId(String producerId) {
       this.producerId = producerId;
+    }
+
+    public Boolean getIdempotent() {
+      return idempotent;
+    }
+
+    public void setIdempotent(Boolean idempotent) {
+      this.idempotent = idempotent;
     }
 
     public String getAcks() {

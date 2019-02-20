@@ -23,7 +23,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.TimeoutException;
 
-import static org.springframework.web.reactive.function.BodyExtractors.toMono;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import static org.springframework.web.reactive.function.server.RequestPredicates.methods;
@@ -90,7 +89,7 @@ public class PersonsRoutes {
    */
   private Mono<ServerResponse> saveHandler(ServerRequest request) {
       return request
-          .body(toMono(Person.class))
+          .bodyToMono(Person.class)
           .doOnNext(personService::store)
           .subscribeOn(Schedulers.elastic())
           .doOnError(exception -> logger.error("Got an exception while trying to send the message to kafka: {}", exception.getMessage() , exception))

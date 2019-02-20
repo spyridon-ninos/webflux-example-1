@@ -6,10 +6,11 @@ kafka:
       - first
   producer:
     producer-id: myProducerId
+    idempotent: true
     acks: all
     max-in-flight-requests: 1
-    request-timeout-ms: 100
     retries: 3
+    request-timeout-ms: 100
     topics:
       - first
 api:
