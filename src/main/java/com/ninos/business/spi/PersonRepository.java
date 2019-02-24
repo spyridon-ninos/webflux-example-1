@@ -11,7 +11,7 @@ public interface PersonRepository {
      *
      * @param person the object to persist
      *
-     * @return the id of the person, in uuid format
+     * @return the saved person
      */
-    String save(Person person);
+    Person save(Person person);
 }

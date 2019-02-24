@@ -32,6 +32,7 @@ public class KafkaConfiguration {
     configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
     configProps.put(ProducerConfig.CLIENT_ID_CONFIG, producerConfiguration.getProducerId());
     configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, producerConfiguration.getRequestTimeoutMs());
+    configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, producerConfiguration.getMaxBlockMs());
 
     /*
      * an idempotent producer sets automatically the acks to all, retries to INT.MAX
@@ -136,6 +137,7 @@ public class KafkaConfiguration {
     private String maxInFlightRequests;
     private String requestTimeoutMs;
     private String retries;
+    private Long maxBlockMs;
     private String metadataFetchTimeoutMs;
     private List<String> topics;
 
@@ -185,6 +187,14 @@ public class KafkaConfiguration {
 
     public void setRetries(String retries) {
       this.retries = retries;
+    }
+
+    public Long getMaxBlockMs() {
+      return maxBlockMs;
+    }
+
+    public void setMaxBlockMs(Long maxBlockMs) {
+      this.maxBlockMs = maxBlockMs;
     }
 
     public String getMetadataFetchTimeoutMs() {

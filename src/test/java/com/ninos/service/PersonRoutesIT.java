@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -43,7 +44,7 @@ public class PersonRoutesIT {
   @Test
   @DisplayName("Saving a person - should return HTTP 200 OK")
   public void savePerson(@LocalServerPort int port) throws URISyntaxException {
-    when(personRepository.save(any(Person.class))).thenReturn("1");
+    when(personRepository.save(any(Person.class))).thenReturn(mock(Person.class));
 
     LocalDate dob = LocalDate.now().minus(30, ChronoUnit.YEARS);
     Person personToSave = new Person("Spyridon", "Ninos", dob);

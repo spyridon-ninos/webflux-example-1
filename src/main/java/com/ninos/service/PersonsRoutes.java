@@ -1,8 +1,9 @@
 package com.ninos.service;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.ninos.business.api.PersonService;
 import com.ninos.business.model.Person;
+import io.netty.handler.codec.DecoderException;
+import org.apache.kafka.common.errors.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,18 +11,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.codec.DecodingException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaProducerException;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-
-import java.util.concurrent.TimeoutException;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
@@ -90,14 +87,10 @@ public class PersonsRoutes {
   private Mono<ServerResponse> saveHandler(ServerRequest request) {
       return request
           .bodyToMono(Person.class)
-          .doOnNext(personService::store)
-          .subscribeOn(Schedulers.elastic())
-          .doOnError(exception -> logger.error("Got an exception while trying to send the message to kafka: {}", exception.getMessage() , exception))
-          .onErrorMap(TimeoutException.class, exception -> new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Cannot connect to kafka"))
-          .onErrorMap(JsonParseException.class, exception -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid json body"))
-          .onErrorMap(DecodingException.class, exception -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid json body"))
-          .then(ok()
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
-                    .build());
+          .map(personService::store)
+          .then(ok().build())
+          .onErrorResume(DecoderException.class, e -> ServerResponse.badRequest().build())
+          .onErrorResume(TimeoutException.class, e -> ServerResponse.status(HttpStatus.GATEWAY_TIMEOUT).build())
+          .onErrorResume(KafkaProducerException.class, e -> ServerResponse.status(HttpStatus.BAD_GATEWAY).build());
   }
 }

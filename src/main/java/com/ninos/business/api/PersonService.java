@@ -28,11 +28,10 @@ public class PersonService {
    *
    * @param person the object to store
    *
-   * @return the id (uuid) of the stored person
+   * @return the stored person
    */
-  public String store(Person person) {
+  public Person store(Person person) {
     logger.debug("Received: {}", person);
-    personRepository.save(person);
-    return person.getUuid();
+    return personRepository.save(person);
   }
 }

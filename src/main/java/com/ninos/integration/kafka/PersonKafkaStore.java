@@ -31,12 +31,12 @@ public class PersonKafkaStore implements PersonRepository {
    * returns the id (uuid) of the person
    */
   @Override
-  public String save(Person person) {
+  public Person save(Person person) {
     kafkaConfig
         .getProducer()
         .getTopics()
         .forEach(topic -> personKafkaTemplate.send(topic, person));
 
-    return person.getUuid();
+    return person;
   }
 }
