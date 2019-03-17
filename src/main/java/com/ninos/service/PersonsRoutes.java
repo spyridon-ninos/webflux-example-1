@@ -2,7 +2,6 @@ package com.ninos.service;
 
 import com.ninos.business.api.PersonService;
 import com.ninos.business.model.Person;
-import io.netty.handler.codec.DecoderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.codec.DecodingException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -92,6 +92,6 @@ public class PersonsRoutes {
               return ServerResponse.status(HttpStatus.ACCEPTED).build();
             }
           })
-          .onErrorResume(DecoderException.class, e -> ServerResponse.badRequest().build());
+          .onErrorResume(DecodingException.class, e -> ServerResponse.badRequest().build());
   }
 }
