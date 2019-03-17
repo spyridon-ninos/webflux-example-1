@@ -2,8 +2,6 @@ package com.ninos.service;
 
 import com.ninos.business.model.Person;
 import com.ninos.business.spi.PersonRepository;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

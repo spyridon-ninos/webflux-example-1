@@ -15,6 +15,9 @@ public interface PersonRepository {
      */
     void save(Person person) throws RepositoryException;
 
+    /**
+     * a generic exception thrown by any repository related method
+     */
     class RepositoryException extends Exception {
         private final String reason;
 

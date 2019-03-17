@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * defines a person
+ * models a person
  */
 public class Person implements Comparable<Person> {
   private final String firstName;

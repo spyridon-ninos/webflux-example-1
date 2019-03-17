@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 /**
  * Implements the main actions around persons
@@ -42,6 +41,9 @@ public class PersonService {
     }
   }
 
+  /**
+   * models the result of any action related to a person
+   */
   public static class PersonActionResult {
     private final boolean failed;
     private final String reason;

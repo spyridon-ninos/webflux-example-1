@@ -2,7 +2,6 @@ package com.ninos.integration.kafka;
 
 import com.ninos.business.model.Person;
 import com.ninos.integration.kafka.serializers.PersonSerializer;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
