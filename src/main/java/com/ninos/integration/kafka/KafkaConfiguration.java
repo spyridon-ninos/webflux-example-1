@@ -2,6 +2,7 @@ package com.ninos.integration.kafka;
 
 import com.ninos.business.model.Person;
 import com.ninos.integration.kafka.serializers.PersonSerializer;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -139,7 +140,7 @@ public class KafkaConfiguration {
     private String retries;
     private Long maxBlockMs;
     private String metadataFetchTimeoutMs;
-    private List<String> topics;
+    private String topic;
 
     public String getProducerId() {
       return producerId;
@@ -205,12 +206,12 @@ public class KafkaConfiguration {
       this.metadataFetchTimeoutMs = metadataFetchTimeoutMs;
     }
 
-    public List<String> getTopics() {
-      return topics;
+    public String getTopic() {
+      return topic;
     }
 
-    public void setTopics(List<String> topics) {
-      this.topics = topics;
+    public void setTopic(String topic) {
+      this.topic = topic;
     }
   }
 }

@@ -2,7 +2,9 @@ package com.ninos.service;
 
 import com.ninos.business.api.PersonService;
 import com.ninos.business.model.Person;
+import com.ninos.service.model.StorageException;
 import io.netty.handler.codec.DecoderException;
+import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.kafka.core.KafkaProducerException;
+import org.springframework.kafka.support.LoggingProducerListener;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -88,9 +91,13 @@ public class PersonsRoutes {
       return request
           .bodyToMono(Person.class)
           .map(personService::store)
-          .then(ok().build())
-          .onErrorResume(DecoderException.class, e -> ServerResponse.badRequest().build())
-          .onErrorResume(TimeoutException.class, e -> ServerResponse.status(HttpStatus.GATEWAY_TIMEOUT).build())
-          .onErrorResume(KafkaProducerException.class, e -> ServerResponse.status(HttpStatus.BAD_GATEWAY).build());
+          .flatMap(result -> {
+            if (result.isFailed()) {
+              return ServerResponse.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+            } else {
+              return ServerResponse.status(HttpStatus.ACCEPTED).build();
+            }
+          })
+          .onErrorResume(DecoderException.class, e -> ServerResponse.badRequest().build());
   }
 }

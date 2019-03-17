@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 /**
  * Implements the main actions around persons
@@ -30,8 +31,32 @@ public class PersonService {
    *
    * @return the stored person
    */
-  public Person store(Person person) {
+  public PersonActionResult store(Person person) {
     logger.debug("Received: {}", person);
-    return personRepository.save(person);
+    try {
+      personRepository.save(person);
+      return new PersonActionResult(false, "OK");
+    } catch (PersonRepository.RepositoryException e) {
+      logger.error("Failed to save the person: {}, reason: {}", person, e.getReason(), e);
+      return new PersonActionResult(true, e.getReason());
+    }
+  }
+
+  public static class PersonActionResult {
+    private final boolean failed;
+    private final String reason;
+
+    public PersonActionResult(boolean failed, String reason) {
+      this.failed = failed;
+      this.reason = reason;
+    }
+
+    public boolean isFailed() {
+      return failed;
+    }
+
+    public String getReason() {
+      return reason;
+    }
   }
 }

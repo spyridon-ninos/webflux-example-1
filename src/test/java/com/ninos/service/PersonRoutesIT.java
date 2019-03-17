@@ -2,6 +2,8 @@ package com.ninos.service;
 
 import com.ninos.business.model.Person;
 import com.ninos.business.spi.PersonRepository;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,10 +21,6 @@ import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 
 @DisplayName("Person Route Integration Test")
 @ExtendWith(SpringExtension.class)
@@ -31,6 +29,7 @@ public class PersonRoutesIT {
 
   @MockBean
   private PersonRepository personRepository;
+
   private final WebTestClient webTestClient;
 
   @Autowired
@@ -44,8 +43,6 @@ public class PersonRoutesIT {
   @Test
   @DisplayName("Saving a person - should return HTTP 200 OK")
   public void savePerson(@LocalServerPort int port) throws URISyntaxException {
-    when(personRepository.save(any(Person.class))).thenReturn(mock(Person.class));
-
     LocalDate dob = LocalDate.now().minus(30, ChronoUnit.YEARS);
     Person personToSave = new Person("Spyridon", "Ninos", dob);
 
@@ -55,7 +52,6 @@ public class PersonRoutesIT {
         .contentType(MediaType.APPLICATION_JSON_UTF8)
         .body(Mono.just(personToSave), Person.class)
         .exchange()
-        .expectStatus().is2xxSuccessful()
-        .expectHeader().contentType(MediaType.APPLICATION_JSON_UTF8);
+        .expectStatus().is2xxSuccessful();
   }
 }

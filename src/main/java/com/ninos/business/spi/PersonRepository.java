@@ -11,7 +11,19 @@ public interface PersonRepository {
      *
      * @param person the object to persist
      *
-     * @return the saved person
+     * @throws RepositoryException if something wrong happened while saving the person
      */
-    Person save(Person person);
+    void save(Person person) throws RepositoryException;
+
+    class RepositoryException extends Exception {
+        private final String reason;
+
+        public RepositoryException(String reason) {
+            this.reason = reason;
+        }
+
+        public String getReason() {
+            return reason;
+        }
+    }
 }
